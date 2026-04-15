@@ -1,0 +1,2564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>北苑街道调解员智能匹配系统</title>
+    <style>
+        :root {
+            --primary: #1a73e8;
+            --primary-light: #e8f0fe;
+            --primary-dark: #1557b0;
+            --accent: #34a853;
+            --warning: #f9ab00;
+            --danger: #ea4335;
+            --text-primary: #202124;
+            --text-secondary: #5f6368;
+            --bg-main: #f8f9fa;
+            --bg-card: #ffffff;
+            --border: #e0e0e0;
+            --shadow: 0 2px 8px rgba(0,0,0,0.08);
+            --shadow-hover: 0 4px 16px rgba(0,0,0,0.12);
+            --radius: 12px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+            background: var(--bg-main);
+            color: var(--text-primary);
+            line-height: 1.6;
+            min-height: 100vh;
+        }
+
+        /* 顶部导航 */
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: 24px 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 2px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: 0.5px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 24px;
+            font-size: 14px;
+            opacity: 0.95;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .stat-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.8);
+        }
+
+        /* 搜索区域 */
+        .search-section {
+            max-width: 1400px;
+            margin: -20px auto 0;
+            padding: 0 24px;
+            position: relative;
+            z-index: 101;
+        }
+
+        .search-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-hover);
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .search-input-group {
+            flex: 1;
+            min-width: 300px;
+        }
+
+        .search-input-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .search-input:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            flex: 2;
+        }
+
+        .filter-select-wrapper {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        .filter-select-wrapper label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .filter-select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        .filter-select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        .btn-search {
+            align-self: flex-end;
+            padding: 12px 32px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-search:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .btn-reset {
+            align-self: flex-end;
+            padding: 12px 24px;
+            background: transparent;
+            color: var(--text-secondary);
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: var(--bg-main);
+        }
+
+        /* ==================== 智能匹配区块 ==================== */
+        .smart-match-section {
+            max-width: 1400px;
+            margin: 20px auto 0;
+            padding: 0 24px;
+        }
+
+        .smart-match-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 4px 20px rgba(102, 126, 234, 0.3);
+            color: white;
+        }
+
+        .smart-match-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .smart-match-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .smart-match-title {
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .smart-match-subtitle {
+            font-size: 13px;
+            opacity: 0.85;
+        }
+
+        .smart-match-form {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .smart-match-input {
+            flex: 1;
+            min-width: 280px;
+            padding: 14px 18px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 10px;
+            font-size: 15px;
+            background: rgba(255,255,255,0.95);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        .smart-match-input:focus {
+            border-color: rgba(255,255,255,0.6);
+            box-shadow: 0 0 0 3px rgba(255,255,255,0.2);
+        }
+
+        .smart-match-input::placeholder {
+            color: #999;
+        }
+
+        .btn-smart-match {
+            padding: 14px 28px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-smart-match:hover {
+            background: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        /* 智能匹配结果 */
+        .smart-match-results {
+            margin-top: 20px;
+            display: none;
+        }
+
+        .smart-match-results.active {
+            display: block;
+        }
+
+        .smart-match-results-title {
+            font-size: 15px;
+            font-weight: 600;
+            margin-bottom: 12px;
+            opacity: 0.95;
+        }
+
+        .smart-match-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .smart-match-item {
+            background: rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            transition: all 0.2s;
+        }
+
+        .smart-match-item:hover {
+            background: rgba(255,255,255,0.25);
+        }
+
+        .match-rank {
+            width: 36px;
+            height: 36px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+
+        .match-rank.top-1 {
+            background: #ffd700;
+            color: #8b6914;
+        }
+
+        .match-rank.top-2 {
+            background: #c0c0c0;
+            color: #5a5a5a;
+        }
+
+        .match-rank.top-3 {
+            background: #cd7f32;
+            color: #fff;
+        }
+
+        .match-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .match-avatar.male {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .match-avatar.female {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            color: #c2185b;
+        }
+
+        .match-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .match-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .match-score {
+            background: rgba(255,255,255,0.3);
+            padding: 2px 10px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .match-reason {
+            font-size: 13px;
+            opacity: 0.9;
+            line-height: 1.4;
+        }
+
+        .match-action {
+            flex-shrink: 0;
+        }
+
+        /* ==================== 紧急调度区块 ==================== */
+        .emergency-bar {
+            max-width: 1400px;
+            margin: 16px auto 0;
+            padding: 0 24px;
+        }
+
+        .btn-emergency {
+            width: 100%;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a5a 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(238, 90, 90, 0.35);
+        }
+
+        .btn-emergency:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 20px rgba(238, 90, 90, 0.45);
+        }
+
+        .btn-emergency.active {
+            background: linear-gradient(135deg, #ff5252 0%, #d32f2f 100%);
+        }
+
+        .btn-emergency .icon {
+            font-size: 20px;
+        }
+
+        /* ==================== 电话拨打菜单 ==================== */
+        .phone-menu {
+            position: fixed;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            z-index: 2000;
+            min-width: 180px;
+            overflow: hidden;
+            display: none;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.95); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .phone-menu.active {
+            display: block;
+        }
+
+        .phone-menu-item {
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            cursor: pointer;
+            transition: background 0.15s;
+            font-size: 15px;
+            color: var(--text-primary);
+        }
+
+        .phone-menu-item:hover {
+            background: var(--bg-main);
+        }
+
+        .phone-menu-item.call {
+            color: var(--primary);
+        }
+
+        .phone-menu-item.copy {
+            color: var(--accent);
+        }
+
+        .phone-menu-item.cancel {
+            color: var(--text-secondary);
+            border-top: 1px solid var(--border);
+        }
+
+        .phone-menu-icon {
+            font-size: 18px;
+        }
+
+        /* 电话号码可点击样式 */
+        .phone-link {
+            color: var(--primary);
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .phone-link:hover {
+            text-decoration: underline;
+            color: var(--primary-dark);
+        }
+
+        /* 结果区域 */
+        .results-section {
+            max-width: 1400px;
+            margin: 24px auto;
+            padding: 0 24px 40px;
+        }
+
+        .results-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .results-count {
+            font-size: 15px;
+            color: var(--text-secondary);
+        }
+
+        .results-count strong {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .mode-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            background: var(--primary-light);
+            color: var(--primary);
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 500;
+            margin-left: 12px;
+        }
+
+        .mode-tag.emergency {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        /* 卡片网格 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+            gap: 20px;
+        }
+
+        /* 调解员卡片 */
+        .mediator-card {
+            background: var(--bg-card);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            border: 1px solid transparent;
+            position: relative;
+        }
+
+        .mediator-card:hover {
+            box-shadow: var(--shadow-hover);
+            transform: translateY(-2px);
+            border-color: var(--primary-light);
+        }
+
+        .mediator-card.emergency-mode {
+            border-color: #ffcdd2;
+        }
+
+        .mediator-card.emergency-mode:hover {
+            border-color: #ef5350;
+        }
+
+        .card-header {
+            padding: 20px 20px 16px;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            border-bottom: 1px solid var(--bg-main);
+        }
+
+        .avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            font-weight: 600;
+            flex-shrink: 0;
+        }
+
+        .avatar.male {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .avatar.female {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            color: #c2185b;
+        }
+
+        .card-title-area {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-name {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .gender-tag {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-weight: 500;
+        }
+
+        .gender-tag.male {
+            background: #e3f2fd;
+            color: #1565c0;
+        }
+
+        .gender-tag.female {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .card-subtitle {
+            font-size: 13px;
+            color: var(--text-secondary);
+        }
+
+        .card-body {
+            padding: 16px 20px;
+        }
+
+        .info-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: var(--text-secondary);
+            min-width: 80px;
+            flex-shrink: 0;
+        }
+
+        .info-value {
+            color: var(--text-primary);
+            font-weight: 500;
+        }
+
+        .info-value.highlight {
+            color: var(--primary);
+        }
+
+        /* 标签 */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 12px;
+        }
+
+        .tag {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 6px;
+            background: var(--bg-main);
+            color: var(--text-secondary);
+        }
+
+        .tag.primary {
+            background: var(--primary-light);
+            color: var(--primary);
+        }
+
+        .tag.accent {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .tag.warning {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        /* 紧急响应 */
+        .urgency-badge {
+            position: absolute;
+            top: 16px;
+            right: 16px;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .urgency-badge.high {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .urgency-badge.medium {
+            background: #fff3e0;
+            color: #e65100;
+        }
+
+        .urgency-badge.low {
+            background: #fafafa;
+            color: #757575;
+        }
+
+        .card-footer {
+            padding: 12px 20px;
+            background: var(--bg-main);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-id {
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .btn-contact {
+            padding: 8px 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-contact:hover {
+            background: var(--primary-dark);
+        }
+
+        /* 详情弹窗 */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--bg-card);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 560px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+            animation: modalIn 0.3s ease;
+        }
+
+        @keyframes modalIn {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .modal-header {
+            padding: 24px 24px 0;
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+        }
+
+        .modal-avatar {
+            width: 64px;
+            height: 64px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 600;
+        }
+
+        .modal-avatar.male {
+            background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+            color: #1565c0;
+        }
+
+        .modal-avatar.female {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd9 100%);
+            color: #c2185b;
+        }
+
+        .modal-title-area {
+            flex: 1;
+        }
+
+        .modal-name {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-subtitle {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            border: none;
+            background: var(--bg-main);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: var(--text-secondary);
+            transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #e0e0e0;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-section {
+            margin-bottom: 24px;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section-title {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-main);
+        }
+
+        .modal-info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .modal-info-item {
+            padding: 12px;
+            background: var(--bg-main);
+            border-radius: 8px;
+        }
+
+        .modal-info-item.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .modal-info-label {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .modal-info-value {
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .modal-info-value.empty {
+            color: #bdbdbd;
+            font-style: italic;
+        }
+
+        .modal-contact-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+
+        .modal-contact-btn:hover {
+            background: var(--primary-dark);
+        }
+
+        /* 无结果 */
+        .no-results {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-secondary);
+        }
+
+        .no-results-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .no-results-text {
+            font-size: 16px;
+        }
+
+        /* 区级调解专家团 */
+        .expert-panel {
+            background: linear-gradient(135deg, #fff 0%, #fafafa 100%);
+            border: 2px solid #e8f0fe;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 4px 20px rgba(26, 115, 232, 0.08);
+        }
+
+        .expert-panel::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #1a73e8 0%, #34a853 50%, #f9ab00 100%);
+        }
+
+        .expert-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: linear-gradient(135deg, #1a73e8 0%, #1557b0 100%);
+            border-radius: 24px;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .expert-icon {
+            font-size: 16px;
+        }
+
+        .expert-label {
+            font-size: 14px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .expert-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .expert-placeholder {
+            text-align: center;
+            padding: 20px;
+        }
+
+        .expert-placeholder-icon {
+            font-size: 48px;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .expert-placeholder-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+
+        .expert-placeholder-hint {
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        /* Toast 提示 */
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%) translateY(100px);
+            background: rgba(0,0,0,0.8);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 14px;
+            z-index: 3000;
+            opacity: 0;
+            transition: all 0.3s ease;
+        }
+
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 22px;
+            }
+
+            .search-card {
+                flex-direction: column;
+            }
+
+            .filter-group {
+                flex-direction: column;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .modal-info-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-search, .btn-reset {
+                width: 100%;
+            }
+
+            .smart-match-form {
+                flex-direction: column;
+            }
+
+            .smart-match-input {
+                min-width: 100%;
+            }
+
+            .btn-smart-match {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .smart-match-item {
+                flex-wrap: wrap;
+            }
+
+            .match-action {
+                width: 100%;
+            }
+
+            .match-action .btn-contact {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部 -->
+    <header class="header">
+        <div class="header-content">
+            <h1>北苑街道调解员智能匹配系统</h1>
+            <div class="header-stats">
+                <div class="stat-item">
+                    <span class="stat-dot"></span>
+                    <span>调解员总数：<strong id="totalCount">0</strong></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-dot"></span>
+                    <span>覆盖社区：<strong>6</strong></span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-dot"></span>
+                    <span>覆盖市场：<strong>9</strong></span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 智能匹配区块 -->
+    <div class="smart-match-section">
+        <div class="smart-match-card">
+            <div class="smart-match-header">
+                <div class="smart-match-icon">🎯</div>
+                <div>
+                    <div class="smart-match-title">智能匹配推荐</div>
+                    <div class="smart-match-subtitle">描述纠纷情况，AI为您推荐最合适的调解员</div>
+                </div>
+            </div>
+            <div class="smart-match-form">
+                <input type="text" class="smart-match-input" id="smartMatchInput" placeholder="请描述纠纷情况，如：楼上漏水业主不配合...">
+                <button class="btn-smart-match" onclick="handleSmartMatch()">
+                    <span>✨</span>
+                    <span>智能推荐</span>
+                </button>
+            </div>
+            <!-- 智能匹配结果 -->
+            <div class="smart-match-results" id="smartMatchResults">
+                <div class="smart-match-results-title">为您推荐以下调解员：</div>
+                <div class="smart-match-list" id="smartMatchList"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 搜索区 -->
+    <div class="search-section">
+        <div class="search-card">
+            <div class="search-input-group">
+                <label>关键词搜索</label>
+                <input type="text" class="search-input" id="keywordInput" placeholder="输入姓名、专长、社区等关键词...">
+            </div>
+            <div class="filter-group">
+                <div class="filter-select-wrapper">
+                    <label>所属社区/单位</label>
+                    <select class="filter-select" id="communityFilter">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="filter-select-wrapper">
+                    <label>核心业务专长</label>
+                    <select class="filter-select" id="specialtyFilter">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+                <div class="filter-select-wrapper">
+                    <label>调解风格</label>
+                    <select class="filter-select" id="styleFilter">
+                        <option value="">全部</option>
+                    </select>
+                </div>
+            </div>
+            <button class="btn-search" onclick="handleSearch()">
+                <span>搜索</span>
+            </button>
+            <button class="btn-reset" onclick="resetFilters()">重置</button>
+        </div>
+    </div>
+
+    <!-- 结果区 -->
+    <div class="results-section">
+        <div class="results-header">
+            <div class="results-count">
+                共找到 <strong id="resultCount">0</strong> 位调解员
+                <span class="mode-tag" id="modeTag" style="display: none;"></span>
+            </div>
+        </div>
+
+        <!-- 区级调解专家团预留位 -->
+        <div class="expert-panel" id="expertPanel">
+            <div class="expert-badge">
+                <span class="expert-icon">★</span>
+                <span class="expert-label">区级调解专家团</span>
+            </div>
+            <div class="expert-content">
+                <div class="expert-placeholder">
+                    <div class="expert-placeholder-icon">🏛️</div>
+                    <div class="expert-placeholder-text">专家席位预留中</div>
+                    <div class="expert-placeholder-hint">将有区级资深调解专家入驻</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="cards-grid" id="cardsContainer">
+            <!-- 卡片将动态生成 -->
+        </div>
+        <div class="no-results" id="noResults" style="display: none;">
+            <div class="no-results-icon">🔍</div>
+            <div class="no-results-text">未找到符合条件的调解员</div>
+        </div>
+    </div>
+
+    <!-- 详情弹窗 -->
+    <div class="modal-overlay" id="modalOverlay">
+        <div class="modal">
+            <div class="modal-header">
+                <div class="modal-avatar" id="modalAvatar"></div>
+                <div class="modal-title-area">
+                    <div class="modal-name">
+                        <span id="modalName"></span>
+                        <span class="gender-tag" id="modalGenderTag"></span>
+                    </div>
+                    <div class="modal-subtitle" id="modalSubtitle"></div>
+                </div>
+                <button class="modal-close" onclick="closeModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <div class="modal-section">
+                    <div class="modal-section-title">基本信息</div>
+                    <div class="modal-info-grid" id="modalBasicInfo"></div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">专业能力</div>
+                    <div class="modal-info-grid" id="modalProfessionInfo"></div>
+                </div>
+                <div class="modal-section">
+                    <div class="modal-section-title">联系方式</div>
+                    <button class="modal-contact-btn" id="modalContactBtn" onclick="showContact()">点击查看联系方式</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 电话拨打菜单 -->
+    <div class="phone-menu" id="phoneMenu">
+        <div class="phone-menu-item call" onclick="handlePhoneCall()">
+            <span class="phone-menu-icon">📞</span>
+            <span>拨打电话</span>
+        </div>
+        <div class="phone-menu-item copy" onclick="handlePhoneCopy()">
+            <span class="phone-menu-icon">📋</span>
+            <span>复制号码</span>
+        </div>
+        <div class="phone-menu-item cancel" onclick="hidePhoneMenu()">
+            <span class="phone-menu-icon">✕</span>
+            <span>取消</span>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        // ==================== 数据定义 ====================
+        const mediatorsData = [
+    {
+        "序号": 1,
+        "姓名": "林芯如",
+        "性别": "女",
+        "年龄": 33,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "卧龙社区",
+        "联系电话": 18364692862,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区工作者",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区网格员",
+        "调解成功案例数": 8,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 2,
+        "姓名": "季同珍",
+        "性别": "女",
+        "年龄": 31,
+        "政治面貌": "预备党员",
+        "所属网格/社区/市场": "卧龙社区",
+        "联系电话": 17663613657,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区工作者",
+        "调解风格画像": "刚正不阿型",
+        "社会威望/人脉圈层": "小区网格长",
+        "调解成功案例数": 8,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 3,
+        "姓名": "刘素芳",
+        "性别": "女",
+        "年龄": 72,
+        "政治面貌": "党员",
+        "所属网格/社区/市场": "卧龙社区",
+        "联系电话": 18369667807,
+        "编制属性": "网格员",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "党员代表",
+        "调解成功案例数": 12,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 4,
+        "姓名": "董宝秀",
+        "性别": "女",
+        "年龄": 84,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "卧龙社区",
+        "联系电话": 15966121191,
+        "编制属性": "平安合伙人",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区网格员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 5,
+        "姓名": "谭志红",
+        "性别": "女",
+        "年龄": 56,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "卧龙社区",
+        "联系电话": 18678071913,
+        "编制属性": "平安合伙人",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区网格员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 6,
+        "姓名": "于洋",
+        "性别": "女",
+        "年龄": 34,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 19011511315,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区干部",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区网格长",
+        "调解成功案例数": "8件",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 7,
+        "姓名": "杨清清",
+        "性别": "女",
+        "年龄": 42,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 19011532098,
+        "编制属性": "社区工作者",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "社区干部",
+        "调解风格画像": "刚正不阿型",
+        "社会威望/人脉圈层": "小区网格长",
+        "调解成功案例数": "7件",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 8,
+        "姓名": "高玉芬",
+        "性别": "女",
+        "年龄": 61,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 13953675545,
+        "编制属性": "网格员",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "党员代表",
+        "调解成功案例数": "9件",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 9,
+        "姓名": "张雪青",
+        "性别": "女",
+        "年龄": 52,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 13792660657,
+        "编制属性": "网格员",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "党员代表",
+        "调解成功案例数": 3,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 10,
+        "姓名": "赵海山",
+        "性别": "男",
+        "年龄": 47,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 13173162068,
+        "编制属性": "网格员",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "执业律师",
+        "调解风格画像": "懂行懂规型",
+        "社会威望/人脉圈层": "小区网格员",
+        "调解成功案例数": 5,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 11,
+        "姓名": "李晓霞",
+        "性别": "女",
+        "年龄": 53,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 13385366787,
+        "编制属性": "网格员",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "小区楼长",
+        "调解成功案例数": 6,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 12,
+        "姓名": "徐铭杰",
+        "性别": "男",
+        "年龄": 73,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 13646466928,
+        "编制属性": "退休老干部",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "退休干部、小区党支部书记",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "原潍坊拖拉机厂老干处副处长",
+        "调解成功案例数": null,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 13,
+        "姓名": "丁志顺",
+        "性别": "男",
+        "年龄": 42,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "金都社区",
+        "联系电话": 18763629112,
+        "编制属性": "平安合伙人",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "物业经理",
+        "调解风格画像": "懂行懂规型",
+        "社会威望/人脉圈层": "金都物业经理",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 14,
+        "姓名": "许家芬",
+        "性别": "女",
+        "年龄": 74,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "芝尔庄社区",
+        "联系电话": 15318911611,
+        "编制属性": "退休老干部",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区楼长",
+        "调解成功案例数": 3,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 15,
+        "姓名": "王翠文",
+        "性别": "男",
+        "年龄": 75,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "芝尔庄社区",
+        "联系电话": 13655365481,
+        "编制属性": "退休老干部",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区楼长",
+        "调解成功案例数": 5,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 16,
+        "姓名": "王艳春",
+        "性别": "女",
+        "年龄": 68,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "芝尔庄社区",
+        "联系电话": 13869621283,
+        "编制属性": "退休老干部",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区志愿服务组织人",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "小区楼长",
+        "调解成功案例数": 8,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 17,
+        "姓名": "徐洪强",
+        "性别": "男",
+        "年龄": 62,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "沙窝社区",
+        "联系电话": 13153669288,
+        "编制属性": "平安合伙人",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "无",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "强",
+        "调解成功案例数": 7,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 18,
+        "姓名": "葛乃祥",
+        "性别": "男",
+        "年龄": 37,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "沙窝社区",
+        "联系电话": 15336469207,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "无",
+        "调解风格画像": "刚正不阿型",
+        "社会威望/人脉圈层": "普通",
+        "调解成功案例数": 2,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 19,
+        "姓名": "赵忠义",
+        "性别": "男",
+        "年龄": 39,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "沙窝社区",
+        "联系电话": 15064633713,
+        "编制属性": "社区工作者",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "无",
+        "调解风格画像": "懂行懂规型",
+        "社会威望/人脉圈层": "普通",
+        "调解成功案例数": 3,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 20,
+        "姓名": "高正亭",
+        "性别": "女",
+        "年龄": 34,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "沙窝社区",
+        "联系电话": 15253601226,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "无",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "普通",
+        "调解成功案例数": 1,
+        "可参与调解时段": "随时可呼",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 21,
+        "姓名": "武立言",
+        "性别": "男",
+        "年龄": 40,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金鼎社区",
+        "联系电话": 19853692369,
+        "编制属性": "社区工作者",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区干部",
+        "调解风格画像": "懂行懂规型",
+        "社会威望/人脉圈层": "小区网格长",
+        "调解成功案例数": 7,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 22,
+        "姓名": "阎德顺",
+        "性别": "男",
+        "年龄": 39,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金鼎社区",
+        "联系电话": 19853655532,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区干部",
+        "调解风格画像": "刚正不阿型",
+        "社会威望/人脉圈层": "小区网格长",
+        "调解成功案例数": 5,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 23,
+        "姓名": "孙冰冰",
+        "性别": "男",
+        "年龄": 39,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "金鼎社区",
+        "联系电话": 18363630092,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "社区干部",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "党员代表",
+        "调解成功案例数": 5,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "高"
+    },
+    {
+        "序号": 24,
+        "姓名": "丁涛",
+        "性别": "男",
+        "年龄": 45,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "丁家社区",
+        "联系电话": 13606361185,
+        "编制属性": "社区工作者",
+        "核心业务专长": "建筑工程",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "从事多年社区工作",
+        "调解风格画像": "刚正不阿型",
+        "社会威望/人脉圈层": "高",
+        "调解成功案例数": "30余",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 25,
+        "姓名": "高英杰",
+        "性别": "男",
+        "年龄": 57,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "丁家社区",
+        "联系电话": 13853699709,
+        "编制属性": "社区工作者",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "从事多年社区工作",
+        "调解风格画像": "德高望重型",
+        "社会威望/人脉圈层": "高",
+        "调解成功案例数": "30余",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 26,
+        "姓名": "疏文平",
+        "性别": "女",
+        "年龄": 39,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "丁家社区",
+        "联系电话": 16553673888,
+        "编制属性": "社区工作者",
+        "核心业务专长": "婚姻家事",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "从事多年社区工作",
+        "调解风格画像": "和风细雨型",
+        "社会威望/人脉圈层": "高",
+        "调解成功案例数": "30余",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 27,
+        "姓名": "刘宏吉",
+        "性别": "男",
+        "年龄": 35,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "丁家社区",
+        "联系电话": 15315263319,
+        "编制属性": "社区工作者",
+        "核心业务专长": "邻里纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "从事多年社区工作",
+        "调解风格画像": "懂行懂规型",
+        "社会威望/人脉圈层": "高",
+        "调解成功案例数": "30余",
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 28,
+        "姓名": "张福岗",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703897",
+        "编制属性": "在编干部",
+        "核心业务专长": "信访事项",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "街道人大办公室副主任",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 29,
+        "姓名": "周斌",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703912",
+        "编制属性": "在编干部",
+        "核心业务专长": "司法调解",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "街道司法所所长",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 30,
+        "姓名": "董克刚",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703915",
+        "编制属性": "在编干部",
+        "核心业务专长": "信访事项",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "平安法治办公室二级主任科员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 31,
+        "姓名": "秦婷",
+        "性别": "女",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703901",
+        "编制属性": "在编干部",
+        "核心业务专长": "商业合同",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "经济发展岗岗位主办",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 32,
+        "姓名": "张小蕾",
+        "性别": "女",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703906",
+        "编制属性": "在编干部",
+        "核心业务专长": "劳资纠纷",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "人社服务岗岗位主办",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 33,
+        "姓名": "庞庆涛",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": 18505362772,
+        "编制属性": "在编干部",
+        "核心业务专长": "建筑工程",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "城市建设服务中心科员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 34,
+        "姓名": "尹正辉",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": 15606366771,
+        "编制属性": "在编干部",
+        "核心业务专长": "物业管理",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "热线服务岗主办",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 35,
+        "姓名": "赵攀登",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703902",
+        "编制属性": "在编干部",
+        "核心业务专长": "退役军人",
+        "语言沟通能力": "普通话标准",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "公共文化和便民服务中心科员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 36,
+        "姓名": "孟凡茂",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "中共党员",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703903",
+        "编制属性": "在编干部",
+        "核心业务专长": "城市管理",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "街道办事处副主任",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 37,
+        "姓名": "李光华",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703902",
+        "编制属性": "在编干部",
+        "核心业务专长": "城市管理",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "应急管理岗主办",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    },
+    {
+        "序号": 38,
+        "姓名": "徐胜凯",
+        "性别": "男",
+        "年龄": null,
+        "政治面貌": "群众",
+        "所属网格/社区/市场": "北苑街道办事处",
+        "联系电话": "0536-6703902",
+        "编制属性": "在编干部",
+        "核心业务专长": "城市管理",
+        "语言沟通能力": "本地方言极溜",
+        "行业背景/职业资格": "街办干部",
+        "调解风格画像": null,
+        "社会威望/人脉圈层": "平安法治办公室四级主任科员",
+        "调解成功案例数": null,
+        "可参与调解时段": "仅工作日白天",
+        "紧急响应意愿": "中"
+    }
+];
+
+        // ==================== 状态变量 ====================
+        let currentData = [...mediatorsData];
+        let selectedMediator = null;
+        let emergencyMode = false;
+        let currentPhoneNumber = '';
+        let currentPhoneElement = null;
+
+        // ==================== 初始化 ====================
+        function init() {
+            initFilters();
+            renderCards(currentData);
+            updateStats();
+            initPhoneMenu();
+        }
+
+        // ==================== 筛选器初始化 ====================
+        function initFilters() {
+            const communities = [...new Set(mediatorsData.map(m => m['所属网格/社区/市场']))].sort();
+            const specialties = [...new Set(mediatorsData.map(m => m['核心业务专长']))].filter(Boolean).sort();
+            const styles = [...new Set(mediatorsData.map(m => m['调解风格画像']))].filter(Boolean).sort();
+
+            const communitySelect = document.getElementById('communityFilter');
+            communities.forEach(c => {
+                communitySelect.innerHTML += `<option value="${c}">${c}</option>`;
+            });
+
+            const specialtySelect = document.getElementById('specialtyFilter');
+            specialties.forEach(s => {
+                specialtySelect.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+
+            const styleSelect = document.getElementById('styleFilter');
+            styles.forEach(s => {
+                styleSelect.innerHTML += `<option value="${s}">${s}</option>`;
+            });
+        }
+
+        // ==================== 统计更新 ====================
+        function updateStats() {
+            document.getElementById('totalCount').textContent = mediatorsData.length;
+        }
+
+        // ==================== 卡片渲染 ====================
+        function renderCards(data) {
+            const container = document.getElementById('cardsContainer');
+            const noResults = document.getElementById('noResults');
+
+            document.getElementById('resultCount').textContent = data.length;
+
+            if (data.length === 0) {
+                container.innerHTML = '';
+                noResults.style.display = 'block';
+                return;
+            }
+
+            noResults.style.display = 'none';
+
+            container.innerHTML = data.map(m => {
+                const genderClass = m['性别'] === '男' ? 'male' : 'female';
+                const urgencyClass = m['紧急响应意愿'] === '高' ? 'high' : (m['紧急响应意愿'] === '中' ? 'medium' : 'low');
+                const urgencyText = m['紧急响应意愿'] === '高' ? '高响应' : (m['紧急响应意愿'] === '中' ? '中响应' : '低响应');
+                const phoneStr = String(m['联系电话']);
+                const emergencyClass = emergencyMode ? 'emergency-mode' : '';
+
+                return `
+                    <div class="mediator-card ${emergencyClass}" onclick="openModal(${m['序号']})">
+                        <div class="urgency-badge ${urgencyClass}">${urgencyText}</div>
+                        <div class="card-header">
+                            <div class="avatar ${genderClass}">${m['姓名'].charAt(0)}</div>
+                            <div class="card-title-area">
+                                <div class="card-name">
+                                    调解员
+                                    <span class="gender-tag ${genderClass}">${m['性别']}</span>
+                                </div>
+                                <div class="card-subtitle">${m['所属网格/社区/市场']} · ${m['编制属性']}</div>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="info-row">
+                                <span class="info-label">核心专长</span>
+                                <span class="info-value highlight">${m['核心业务专长']}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">调解风格</span>
+                                <span class="info-value">${m['调解风格画像'] || '点击查看详情'}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">可调解时段</span>
+                                <span class="info-value">${m['可参与调解时段']}</span>
+                            </div>
+                            <div class="tags">
+                                <span class="tag primary">${m['核心业务专长']}</span>
+                                ${m['政治面貌'].includes('党员') ? '<span class="tag accent">党员</span>' : ''}
+                                <span class="tag ${urgencyClass === 'high' ? 'accent' : 'warning'}">${urgencyText}</span>
+                                ${m['可参与调解时段'] === '随时可呼' ? '<span class="tag accent">随时可呼</span>' : ''}
+                            </div>
+                        </div>
+                        <div class="card-footer">
+                            <span class="card-id">${m['编制属性']}</span>
+                            <button class="btn-contact" onclick="event.stopPropagation(); openModal(${m['序号']})">查看详情</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // ==================== 搜索处理 ====================
+        function handleSearch() {
+            const keyword = document.getElementById('keywordInput').value.trim().toLowerCase();
+            const community = document.getElementById('communityFilter').value;
+            const specialty = document.getElementById('specialtyFilter').value;
+            const style = document.getElementById('styleFilter').value;
+
+            currentData = mediatorsData.filter(m => {
+                // 关键词匹配
+                if (keyword) {
+                    const searchStr = `${m['姓名']} ${m['所属网格/社区/市场']} ${m['核心业务专长']} ${m['调解风格画像']} ${m['行业背景/职业资格']}`.toLowerCase();
+                    if (!searchStr.includes(keyword)) return false;
+                }
+
+                // 社区筛选
+                if (community && m['所属网格/社区/市场'] !== community) return false;
+
+                // 专长筛选
+                if (specialty && m['核心业务专长'] !== specialty) return false;
+
+                // 风格筛选
+                if (style && m['调解风格画像'] !== style) return false;
+
+                return true;
+            });
+
+            renderCards(currentData);
+        }
+
+        // ==================== 重置筛选 ====================
+        function resetFilters() {
+            document.getElementById('keywordInput').value = '';
+            document.getElementById('communityFilter').value = '';
+            document.getElementById('specialtyFilter').value = '';
+            document.getElementById('styleFilter').value = '';
+            currentData = [...mediatorsData];
+            
+            // 退出紧急模式
+            if (emergencyMode) {
+                toggleEmergencyMode();
+            }
+            
+            renderCards(currentData);
+            
+            // 隐藏模式标签
+            document.getElementById('modeTag').style.display = 'none';
+        }
+
+        // ==================== 智能匹配功能 ====================
+        
+        // 纠纷类型关键词映射
+        const disputeTypeKeywords = {
+            '邻里纠纷': ['邻居', '邻里', '楼上', '楼下', '噪音', '漏水', '占用', '共用', '装修'],
+            '物业管理': ['物业', '车位', '停车', '垃圾', '卫生', '绿化', '公共设施', '物业费'],
+            '婚姻家事': ['婚姻', '离婚', '夫妻', '家庭', '抚养', '赡养', '继承', '财产分割'],
+            '建筑工程': ['建筑', '工程', '施工', '装修', '合同', '拖欠', '款项', '质量'],
+            '信访事项': ['信访', '投诉', '举报', '上访'],
+            '司法调解': ['法院', '诉讼', '判决', '裁定', '法律'],
+            '商业合同': ['合同', '商业', '交易', '买卖', '合作', '协议', '违约'],
+            '劳资纠纷': ['工资', '劳动', '雇佣', '加班', '辞职', '辞退', '社保', '赔偿'],
+            '退役军人': ['军人', '退役', '优抚'],
+            '城市管理': ['城管', '占道', '经营', '摆摊', '违建']
+        };
+
+        // 解析用户输入，提取关键信息
+        function parseUserInput(input) {
+            const result = {
+                disputeTypes: [],
+                needsLocalDialects: false,
+                isUrgent: false
+            };
+
+            const lowerInput = input.toLowerCase();
+
+            // 检测纠纷类型
+            for (const [type, keywords] of Object.entries(disputeTypeKeywords)) {
+                for (const keyword of keywords) {
+                    if (lowerInput.includes(keyword)) {
+                        if (!result.disputeTypes.includes(type)) {
+                            result.disputeTypes.push(type);
+                        }
+                        break;
+                    }
+                }
+            }
+
+            // 检测语言需求
+            const dialectKeywords = ['方言', '本地', '老家话', '土话', '当地话'];
+            for (const keyword of dialectKeywords) {
+                if (lowerInput.includes(keyword)) {
+                    result.needsLocalDialects = true;
+                    break;
+                }
+            }
+
+            // 检测紧急程度
+            const urgentKeywords = ['紧急', '急', '马上', '立刻', '尽快', '着急', '马上', '立即'];
+            for (const keyword of urgentKeywords) {
+                if (lowerInput.includes(keyword)) {
+                    result.isUrgent = true;
+                    break;
+                }
+            }
+
+            return result;
+        }
+
+        // 计算调解员匹配度
+        function calculateMatchScore(mediator, parsedInput) {
+            let score = 0;
+            const reasons = [];
+
+            // 核心业务专长匹配：+3分
+            if (parsedInput.disputeTypes.length > 0) {
+                for (const type of parsedInput.disputeTypes) {
+                    if (mediator['核心业务专长'] === type) {
+                        score += 3;
+                        reasons.push(`专长匹配：${type}`);
+                        break;
+                    }
+                }
+            }
+
+            // 语言沟通能力匹配（本地方言极溜）：+1分
+            if (parsedInput.needsLocalDialects || mediator['语言沟通能力'] === '本地方言极溜') {
+                if (mediator['语言沟通能力'] === '本地方言极溜') {
+                    score += 1;
+                    reasons.push('熟练使用本地方言');
+                }
+            }
+
+            // 紧急响应意愿高：+1分
+            if (parsedInput.isUrgent && mediator['紧急响应意愿'] === '高') {
+                score += 1;
+                reasons.push('紧急响应意愿高');
+            }
+
+            // 可参与调解时段（随时可呼）：+1分
+            if (mediator['可参与调解时段'] === '随时可呼') {
+                score += 1;
+                reasons.push('随时可呼');
+            }
+
+            // 调解成功案例数：每10件+1分，上限3分
+            let caseCount = 0;
+            if (mediator['调解成功案例数']) {
+                const caseStr = String(mediator['调解成功案例数']);
+                if (caseStr.includes('余')) {
+                    caseCount = parseInt(caseStr) || 0;
+                } else {
+                    caseCount = parseInt(caseStr) || 0;
+                }
+            }
+            const caseScore = Math.min(Math.floor(caseCount / 10), 3);
+            if (caseScore > 0) {
+                score += caseScore;
+                reasons.push(`成功案例${caseCount}件`);
+            }
+
+            // 党员身份：+0.5分
+            if (mediator['政治面貌'].includes('党员')) {
+                score += 0.5;
+                reasons.push('党员身份');
+            }
+
+            // 德高望重型调解风格：+0.5分
+            if (mediator['调解风格画像'] === '德高望重型') {
+                score += 0.5;
+                reasons.push('德高望重型风格');
+            }
+
+            return { score, reasons };
+        }
+
+        // 智能匹配处理
+        function handleSmartMatch() {
+            const input = document.getElementById('smartMatchInput').value.trim();
+            
+            if (!input) {
+                showToast('请先描述纠纷情况');
+                return;
+            }
+
+            // 解析输入
+            const parsedInput = parseUserInput(input);
+            
+            // 计算所有调解员的匹配度
+            const matchResults = mediatorsData.map(mediator => {
+                const { score, reasons } = calculateMatchScore(mediator, parsedInput);
+                return {
+                    mediator,
+                    score,
+                    reasons
+                };
+            });
+
+            // 按分数排序，取前5名
+            const topMatches = matchResults
+                .filter(r => r.score > 0)
+                .sort((a, b) => b.score - a.score)
+                .slice(0, 5);
+
+            // 显示结果
+            const resultsContainer = document.getElementById('smartMatchResults');
+            const listContainer = document.getElementById('smartMatchList');
+
+            if (topMatches.length === 0) {
+                listContainer.innerHTML = '<div style="text-align:center;padding:20px;opacity:0.8;">未找到匹配的调解员，请尝试其他描述</div>';
+            } else {
+                listContainer.innerHTML = topMatches.map((result, index) => {
+                    const { mediator, score, reasons } = result;
+                    const genderClass = mediator['性别'] === '男' ? 'male' : 'female';
+                    const phoneStr = String(mediator['联系电话']);
+                    const rankClass = index === 0 ? 'top-1' : (index === 1 ? 'top-2' : (index === 2 ? 'top-3' : ''));
+                    
+                    return `
+                        <div class="smart-match-item">
+                            <div class="match-rank ${rankClass}">${index + 1}</div>
+                            <div class="match-avatar ${genderClass}">${mediator['姓名'].charAt(0)}</div>
+                            <div class="match-info">
+                                <div class="match-name">
+                                    ${mediator['姓名']}
+                                    <span class="match-score">${score.toFixed(1)}分</span>
+                                </div>
+                                <div class="match-reason">${reasons.join(' · ')}</div>
+                            </div>
+                            <div class="match-action">
+                                <button class="btn-contact" onclick="openModal(${mediator['序号']})">查看详情</button>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            }
+
+            resultsContainer.classList.add('active');
+            
+            // 滚动到结果区域
+            resultsContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        // ==================== 紧急调度功能 ====================
+        function toggleEmergencyMode() {
+            emergencyMode = !emergencyMode;
+            const btn = document.getElementById('btnEmergency');
+            const modeTag = document.getElementById('modeTag');
+
+            if (emergencyMode) {
+                btn.classList.add('active');
+                btn.innerHTML = '<span class="icon">✓</span><span>退出紧急模式</span>';
+                modeTag.style.display = 'inline-flex';
+                modeTag.className = 'mode-tag emergency';
+                modeTag.innerHTML = '<span>🚨</span><span>紧急调度模式</span>';
+
+                // 自动筛选：随时可呼 + 高响应意愿
+                currentData = mediatorsData.filter(m => {
+                    return m['可参与调解时段'] === '随时可呼' && m['紧急响应意愿'] === '高';
+                });
+
+                // 按威望/经验排序（调解成功案例数）
+                currentData.sort((a, b) => {
+                    const aCases = parseCaseCount(a['调解成功案例数']);
+                    const bCases = parseCaseCount(b['调解成功案例数']);
+                    return bCases - aCases;
+                });
+            } else {
+                btn.classList.remove('active');
+                btn.innerHTML = '<span class="icon">🚨</span><span>紧急调度</span>';
+                modeTag.style.display = 'none';
+                currentData = [...mediatorsData];
+            }
+
+            renderCards(currentData);
+        }
+
+        // 解析案例数
+        function parseCaseCount(caseStr) {
+            if (!caseStr) return 0;
+            const str = String(caseStr);
+            if (str.includes('余')) {
+                return parseInt(str) || 0;
+            }
+            return parseInt(str) || 0;
+        }
+
+        // ==================== 电话拨打功能 ====================
+        function initPhoneMenu() {
+            // 点击其他区域关闭菜单
+            document.addEventListener('click', function(e) {
+                const menu = document.getElementById('phoneMenu');
+                if (!menu.contains(e.target) && e.target.className !== 'phone-link') {
+                    hidePhoneMenu();
+                }
+            });
+        }
+
+        function showPhoneMenu(phone, element) {
+            currentPhoneNumber = phone;
+            currentPhoneElement = element;
+            
+            const menu = document.getElementById('phoneMenu');
+            const rect = element.getBoundingClientRect();
+            
+            // 计算菜单位置
+            let left = rect.left;
+            let top = rect.bottom + 8;
+            
+            // 边界检测
+            const menuWidth = 180;
+            const menuHeight = 130;
+            
+            if (left + menuWidth > window.innerWidth) {
+                left = window.innerWidth - menuWidth - 10;
+            }
+            if (top + menuHeight > window.innerHeight) {
+                top = rect.top - menuHeight - 8;
+            }
+            
+            menu.style.left = left + 'px';
+            menu.style.top = top + 'px';
+            menu.classList.add('active');
+        }
+
+        function hidePhoneMenu() {
+            document.getElementById('phoneMenu').classList.remove('active');
+        }
+
+        function handlePhoneCall() {
+            hidePhoneMenu();
+            // 使用 tel: 协议触发拨打电话
+            window.location.href = 'tel:' + currentPhoneNumber;
+        }
+
+        function handlePhoneCopy() {
+            hidePhoneMenu();
+            navigator.clipboard.writeText(currentPhoneNumber).then(() => {
+                showToast('电话号码已复制');
+            }).catch(() => {
+                showToast('复制失败，请手动复制');
+            });
+        }
+
+        // ==================== 弹窗功能 ====================
+        function openModal(id) {
+            selectedMediator = mediatorsData.find(m => m['序号'] === id);
+            if (!selectedMediator) return;
+
+            const genderClass = selectedMediator['性别'] === '男' ? 'male' : 'female';
+
+            document.getElementById('modalAvatar').className = `modal-avatar ${genderClass}`;
+            document.getElementById('modalAvatar').textContent = selectedMediator['姓名'].charAt(0);
+            document.getElementById('modalName').innerHTML = `${selectedMediator['姓名']}<span class="gender-tag ${genderClass}">${selectedMediator['性别']}</span>`;
+            document.getElementById('modalSubtitle').textContent = `${selectedMediator['所属网格/社区/市场']} · ${selectedMediator['编制属性']}`;
+
+            // 基本信息
+            const basicInfo = document.getElementById('modalBasicInfo');
+            basicInfo.innerHTML = `
+                <div class="modal-info-item">
+                    <div class="modal-info-label">姓名</div>
+                    <div class="modal-info-value">${selectedMediator['姓名']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">年龄</div>
+                    <div class="modal-info-value ${!selectedMediator['年龄'] ? 'empty' : ''}">${selectedMediator['年龄'] || '暂无'}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">政治面貌</div>
+                    <div class="modal-info-value">${selectedMediator['政治面貌']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">编制属性</div>
+                    <div class="modal-info-value">${selectedMediator['编制属性']}</div>
+                </div>
+                <div class="modal-info-item full-width">
+                    <div class="modal-info-label">所属单位</div>
+                    <div class="modal-info-value">${selectedMediator['所属网格/社区/市场']}</div>
+                </div>
+                <div class="modal-info-item full-width">
+                    <div class="modal-info-label">社会威望/人脉圈层</div>
+                    <div class="modal-info-value">${selectedMediator['社会威望/人脉圈层']}</div>
+                </div>
+            `;
+
+            // 专业能力
+            const professionInfo = document.getElementById('modalProfessionInfo');
+            professionInfo.innerHTML = `
+                <div class="modal-info-item">
+                    <div class="modal-info-label">核心业务专长</div>
+                    <div class="modal-info-value">${selectedMediator['核心业务专长']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">调解风格</div>
+                    <div class="modal-info-value ${!selectedMediator['调解风格画像'] ? 'empty' : ''}">${selectedMediator['调解风格画像'] || '暂无'}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">语言沟通能力</div>
+                    <div class="modal-info-value">${selectedMediator['语言沟通能力']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">成功案例数</div>
+                    <div class="modal-info-value ${!selectedMediator['调解成功案例数'] ? 'empty' : ''}">${selectedMediator['调解成功案例数'] || '暂无'}${selectedMediator['调解成功案例数'] && typeof selectedMediator['调解成功案例数'] === 'number' ? '件' : ''}</div>
+                </div>
+                <div class="modal-info-item full-width">
+                    <div class="modal-info-label">行业背景/职业资格</div>
+                    <div class="modal-info-value">${selectedMediator['行业背景/职业资格']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">可调解时段</div>
+                    <div class="modal-info-value">${selectedMediator['可参与调解时段']}</div>
+                </div>
+                <div class="modal-info-item">
+                    <div class="modal-info-label">紧急响应意愿</div>
+                    <div class="modal-info-value">${selectedMediator['紧急响应意愿']}</div>
+                </div>
+            `;
+
+            // 重置联系按钮
+            document.getElementById('modalContactBtn').textContent = '点击查看联系方式';
+            document.getElementById('modalContactBtn').dataset.revealed = 'false';
+
+            document.getElementById('modalOverlay').classList.add('active');
+        }
+
+        function closeModal() {
+            document.getElementById('modalOverlay').classList.remove('active');
+            selectedMediator = null;
+        }
+
+        function showContact() {
+            if (!selectedMediator) return;
+            const btn = document.getElementById('modalContactBtn');
+            const phoneStr = String(selectedMediator['联系电话']);
+            
+            if (btn.dataset.revealed === 'false') {
+                btn.innerHTML = `📞 <span class="phone-link" onclick="event.stopPropagation(); showPhoneMenu('${phoneStr}', this)">${phoneStr}</span>`;
+                btn.dataset.revealed = 'true';
+            }
+        }
+
+        // 点击遮罩关闭
+        document.getElementById('modalOverlay').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // ESC关闭弹窗
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+                hidePhoneMenu();
+            }
+        });
+
+        // ==================== Toast提示 ====================
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('show');
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 2000);
+        }
+
+        // ==================== 事件监听 ====================
+        
+        // 实时搜索
+        document.getElementById('keywordInput').addEventListener('input', handleSearch);
+        document.getElementById('communityFilter').addEventListener('change', handleSearch);
+        document.getElementById('specialtyFilter').addEventListener('change', handleSearch);
+        document.getElementById('styleFilter').addEventListener('change', handleSearch);
+
+        // 智能匹配输入框回车事件
+        document.getElementById('smartMatchInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                handleSmartMatch();
+            }
+        });
+
+        // 初始化
+        init();
+    </script>
+</body>
+</html>
